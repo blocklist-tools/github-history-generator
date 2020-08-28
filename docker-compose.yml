@@ -1,0 +1,12 @@
+version: '3.4'
+
+services:
+  run:
+    build:
+      context: ./
+    entrypoint: /opt/github-history-generator/run.sh
+    volumes:
+      - "${PWD}/:/opt/github-history-generator"
+    working_dir: /opt/github-history-generator
+    ports:
+      - 3000:3000
