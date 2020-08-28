@@ -30,14 +30,15 @@ clone_repo() {
   git fetch
   git checkout .
   git checkout master
-  git pull
-  set_git_vars
+  #git pull
   cd "${HOME}" || exit 1
 }
 
 set_git_vars() {
-  CURRENT_GIT_HASH=$(git rev-parse HEAD)
-  CURRENT_GIT_EPOCH=$(git show -s --format=%ct HEAD)
+  cd ${REPO_PATH} || exit 1
+  CURRENT_GIT_HASH="$(git rev-parse HEAD)"
+  CURRENT_GIT_EPOCH="$(git show -s --format=%ct HEAD)"
+  cd "${HOME}" || exit 1
 }
 
 find_matching_files() {
@@ -52,14 +53,28 @@ find_matching_files() {
   done
 
   cd "${REPO_PATH}" || exit 1
-  MATCHING=$(find . -type f ${PATHS} | sed 's|^./||')
+  MATCHING=$(find . -type f ${PATHS} -print -quit | sed 's|^./||')
   cd "${HOME}" || exit 1
-  echo "${MATCHING}"
+  echo "${MATCHING[0]}"
 }
 
 build_github_link() {
   file="${1}"
   echo "https://raw.githubusercontent.com/${USER}/${REPO}/${CURRENT_GIT_HASH}/${file}"
+}
+
+walk_repo_back() {
+  cd ${REPO_PATH} || exit 1
+  echo "HASH: ${CURRENT_GIT_HASH}"
+  if [ -z "${CURRENT_GIT_HASH}" ]; then
+    git checkout master >/dev/null
+    #git pull
+  else
+    git checkout HEAD~1 >/dev/null || return 1
+  fi
+  set_git_vars
+  cd "${HOME}" || exit 1
+  return 0
 }
 
 while getopts 'hr:u:' flag; do
@@ -78,13 +93,27 @@ REPO_DIR="$(echo "${USER}-${REPO}" | sed 's/[:@.\/ ]/-/g')"
 REPO_PATH="${HOME}/.repos/${REPO_DIR}"
 
 clone_repo
-matching_files=$(find_matching_files "$@")
 
-urls=()
-for file in ${matching_files}
+output="["
+first_loop=1
+while walk_repo_back
 do
-  urls+=("$(build_github_link "${file}")")
+  matching_file=$(find_matching_files "$@")
+  url_link=$(build_github_link "${matching_file}")
+  if [ "${first_loop}" -eq 0 ]; then
+    output+=","
+  fi
+
+  output+="{"
+  output+="\"hash\": \"${CURRENT_GIT_HASH}\","
+  output+="\"time\": ${CURRENT_GIT_EPOCH},"
+  output+="\"url\": \"${url_link}\""
+  output+="}"
+  first_loop=0
 done
+output+="]"
+
+echo "${output}" > "${HOME}/results.json"
 
 
 
