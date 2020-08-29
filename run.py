@@ -70,8 +70,8 @@ def build_github_link(user, repo, hash, file) -> str:
     return f'https://raw.githubusercontent.com/{user}/{repo}/{hash}{file}'
 
 
-def write_results(results):
-    with open(f'{HOME}/results.json', 'w') as file:
+def write_results(username, repo, results):
+    with open(f'{HOME}/{username}-{repo}-results.json', 'w') as file:
         file.write(json.dumps(results, indent=4))
 
 
@@ -81,15 +81,17 @@ def main():
     files = list()
     more_history = True
     while more_history:
+        details = get_commit_details()
         file = find_matching_file(args.patterns)
         if file:
-            details = get_commit_details()
             files.append({
                 'url': build_github_link(args.username, args.repo, details['commit_hash'], file),
                 'commit_epoch': details['commit_epoch']
             })
+        else:
+            print(f'WARNING: No match found for commit {details["commit_hash"]}')
         more_history = walk_repo()
-    write_results(files)
+    write_results(args.username, args.repo, files)
 
 
 if __name__ == "__main__":
