@@ -19,6 +19,7 @@ def parse_args() -> sys.argv:
     parser.add_argument('patterns', type=str, nargs='+', help='Path patterns to match')
     parser.add_argument('--username', type=str, help='Github username')
     parser.add_argument('--repo', type=str, help='Github repo name')
+    parser.add_argument('--subname', type=str, help='Subname for out filename')
     args = parser.parse_args()
     if not args.patterns or len(args.patterns) < 1:
         parser.print_help()
@@ -66,7 +67,7 @@ def get_commit_details() -> dict:
 
 
 def walk_repo():
-    return_code = subprocess.Popen(['git', 'checkout', 'HEAD~1'], cwd=CLONE_PATH).wait()
+    return_code = subprocess.Popen(['git', 'checkout', 'HEAD~1'], cwd=CLONE_PATH, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).wait()
     if return_code != 0:
         return False
     return True
@@ -76,8 +77,8 @@ def build_github_link(user, repo, hash, file) -> str:
     return f'https://raw.githubusercontent.com/{user}/{repo}/{hash}{file}'
 
 
-def write_results(username, repo, results):
-    with open(f'{HOME}/{username}-{repo}-results.json', 'w') as file:
+def write_results(username, repo, subname, results):
+    with open(f'{HOME}/out/{username}-{repo}-{subname}-results.json', 'w') as file:
         file.write(json.dumps(results, indent=4))
 
 
@@ -96,19 +97,19 @@ def main():
                 print(f'INFO: hash matches of previous entry')
                 files[-1] = {
                     'url': build_github_link(args.username, args.repo, details['commit_hash'], file),
-                    'commit_epoch': details['commit_epoch']
+                    'commitEpoch': details['commit_epoch']
                 }
             else:
                 print(f'INFO: New file hash: ${new_hash}')
                 files.append({
                     'url': build_github_link(args.username, args.repo, details['commit_hash'], file),
-                    'commit_epoch': details['commit_epoch']
+                    'commitEpoch': details['commit_epoch']
                 })
             previous_hash = new_hash
         else:
             print(f'WARNING: No match found for commit {details["commit_hash"]}')
         more_history = walk_repo()
-    write_results(args.username, args.repo, files)
+    write_results(args.username, args.repo, args.subname, files)
 
 
 if __name__ == "__main__":
