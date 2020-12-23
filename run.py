@@ -6,6 +6,7 @@ import os
 import re
 import subprocess
 import json
+import urllib.parse
 from pathlib import Path
 from typing import Union
 
@@ -17,9 +18,9 @@ CLONE_PATH = None
 def parse_args() -> sys.argv:
     parser = argparse.ArgumentParser()
     parser.add_argument('patterns', type=str, nargs='+', help='Path patterns to match')
-    parser.add_argument('--username', type=str, help='Github username')
-    parser.add_argument('--repo', type=str, help='Github repo name')
-    parser.add_argument('--subname', type=str, help='Subname for out filename')
+    parser.add_argument('--username', type=str, help='Username')
+    parser.add_argument('--repo', type=str, help='Repo name')
+    parser.add_argument('--platform', type=str, help='Either github or gitlab', default='github')
     args = parser.parse_args()
     if not args.patterns or len(args.patterns) < 1:
         parser.print_help()
@@ -27,10 +28,10 @@ def parse_args() -> sys.argv:
     return args
 
 
-def clone_repo(username: str, repo: str):
+def clone_repo(platform: str, username: str, repo: str):
     global CLONE_PATH
     CLONE_PATH = f'{REPOS_PATH}/{username}-{repo}'
-    github_repo = f'https://github.com/{username}/{repo}.git'
+    github_repo = repo_path(platform, username, repo)
     if not os.path.exists(REPOS_PATH):
         subprocess.Popen(['mkdir', '-p', REPOS_PATH])
     if not os.path.exists(CLONE_PATH):
@@ -39,6 +40,12 @@ def clone_repo(username: str, repo: str):
     subprocess.Popen(['git', 'checkout', './'], cwd=CLONE_PATH).wait()
     subprocess.Popen(['git', 'checkout', 'master'], cwd=CLONE_PATH).wait()
     subprocess.Popen(['git', 'pull'], cwd=CLONE_PATH).wait()
+
+
+def repo_path(platform: str, username: str, repo: str) -> str:
+    if platform == 'gitlab':
+        return f'https://gitlab.com/{username}/{repo}.git'
+    return f'https://github.com/{username}/{repo}.git'
 
 
 def find_matching_file(patterns: list) -> Union[None, str]:
@@ -73,18 +80,22 @@ def walk_repo():
     return True
 
 
-def build_github_link(user, repo, hash, file) -> str:
-    return f'https://raw.githubusercontent.com/{user}/{repo}/{hash}{file}'
+def build_download_link(platform: str, user: str, repo: str, hash: str, file: str) -> str:
+    encoded_file = urllib.parse.quote(file)
+    if platform == 'gitlab':
+        encoded_file = encoded_file.lstrip('/')
+        return f'https://gitlab.com/{user}/{repo}/-/raw/{hash}/{encoded_file}'
+    return f'https://raw.githubusercontent.com/{user}/{repo}/{hash}{encoded_file}'
 
 
-def write_results(username, repo, subname, results):
-    with open(f'{HOME}/out/{username}-{repo}-{subname}-results.json', 'w') as file:
+def write_results(username, repo, results):
+    with open(f'{HOME}/{username}-{repo}-results.json', 'w') as file:
         file.write(json.dumps(results, indent=4))
 
 
 def main():
     args = parse_args()
-    clone_repo(args.username, args.repo)
+    clone_repo(args.platform, args.username, args.repo)
     files = list()
     more_history = True
     previous_hash = None
@@ -96,21 +107,26 @@ def main():
             if previous_hash == new_hash:
                 print(f'INFO: hash matches of previous entry')
                 files[-1] = {
-                    'url': build_github_link(args.username, args.repo, details['commit_hash'], file),
+                    'url': build_download_link(args.platform, args.username, args.repo, details['commit_hash'], file),
                     'commitEpoch': details['commit_epoch']
                 }
             else:
                 print(f'INFO: New file hash: ${new_hash}')
                 files.append({
-                    'url': build_github_link(args.username, args.repo, details['commit_hash'], file),
+                    'url': build_download_link(args.platform, args.username, args.repo, details['commit_hash'], file),
                     'commitEpoch': details['commit_epoch']
                 })
             previous_hash = new_hash
         else:
             print(f'WARNING: No match found for commit {details["commit_hash"]}')
         more_history = walk_repo()
-    write_results(args.username, args.repo, args.subname, files)
+    write_results(args.username, args.repo, files)
 
 
 if __name__ == "__main__":
     main()
+
+# https://gitlab.com/The_Quantum_Alpha/the-quantum-ad-list/-/blob/80eca2144059951e05d692511a189263efa01e86/For%20hosts%20file/The_Quantum_Ad-List.txt
+# https://gitlab.com/The_Quantum_Alpha/the-quantum-ad-list/-/raw/80eca2144059951e05d692511a189263efa01e86/For%20hosts%20file/The_Quantum_Ad-List.txt
+# https://gitlab.com/The_Quantum_Alpha/The_Quantum_Alpha/-/blob/80eca2144059951e05d692511a189263efa01e86/For%20hosts%20file/The_Quantum_Ad-List.txt"
+# https://gitlab.com/The_Quantum_Alpha/the-quantum-ad-list/-/raw/80eca2144059951e05d692511a189263efa01e86/For%20hosts%20file/The_Quantum_Ad-List.txt
