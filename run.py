@@ -7,6 +7,7 @@ import re
 import subprocess
 import json
 import urllib.parse
+import datetime
 from pathlib import Path
 from typing import Union
 
@@ -21,6 +22,8 @@ def parse_args() -> sys.argv:
     parser.add_argument('--username', type=str, help='Username')
     parser.add_argument('--repo', type=str, help='Repo name')
     parser.add_argument('--platform', type=str, help='Either github or gitlab', default='github')
+    parser.add_argument('--branch', type=str, help='Branch name to walk', default='master')
+    parser.add_argument('--name', type=str, help='Optional name to include in output file', default=None)
     args = parser.parse_args()
     if not args.patterns or len(args.patterns) < 1:
         parser.print_help()
@@ -28,7 +31,7 @@ def parse_args() -> sys.argv:
     return args
 
 
-def clone_repo(platform: str, username: str, repo: str):
+def clone_repo(platform: str, username: str, repo: str, branch: str):
     global CLONE_PATH
     CLONE_PATH = f'{REPOS_PATH}/{username}-{repo}'
     github_repo = repo_path(platform, username, repo)
@@ -38,7 +41,7 @@ def clone_repo(platform: str, username: str, repo: str):
         subprocess.Popen(['git', 'clone', github_repo, CLONE_PATH]).wait()
     subprocess.Popen(['git', 'fetch'], cwd=CLONE_PATH).wait()
     subprocess.Popen(['git', 'checkout', './'], cwd=CLONE_PATH).wait()
-    subprocess.Popen(['git', 'checkout', 'master'], cwd=CLONE_PATH).wait()
+    subprocess.Popen(['git', 'checkout', branch], cwd=CLONE_PATH).wait()
     subprocess.Popen(['git', 'pull'], cwd=CLONE_PATH).wait()
 
 
@@ -88,14 +91,31 @@ def build_download_link(platform: str, user: str, repo: str, hash: str, file: st
     return f'https://raw.githubusercontent.com/{user}/{repo}/{hash}{encoded_file}'
 
 
-def write_results(username, repo, results):
-    with open(f'{HOME}/{username}-{repo}-results.json', 'w') as file:
-        file.write(json.dumps(results, indent=4))
+def get_out_file_name(args):
+    filename = f'{HOME}/{args.platform}-{args.username}-{args.repo}'
+    if args.name:
+        filename += '-' + args.name
+    return filename + '-results.json'
+
+
+def write_results(args, results):
+    with open(get_out_file_name(args), 'w') as file:
+        contents = {
+            'platform': args.platform,
+            'username': args.username,
+            'repo': args.repo,
+            'branch': args.branch,
+            'name': args.name,
+            'patterns': args.patterns,
+            'created': datetime.datetime.utcnow().isoformat(),
+            'versions': results
+        }
+        file.write(json.dumps(contents, indent=4))
 
 
 def main():
     args = parse_args()
-    clone_repo(args.platform, args.username, args.repo)
+    clone_repo(args.platform, args.username, args.repo, args.branch)
     files = list()
     more_history = True
     previous_hash = None
@@ -120,7 +140,7 @@ def main():
         else:
             print(f'WARNING: No match found for commit {details["commit_hash"]}')
         more_history = walk_repo()
-    write_results(args.username, args.repo, files)
+    write_results(args, files)
 
 
 if __name__ == "__main__":
