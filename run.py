@@ -138,7 +138,11 @@ def main():
                 })
             previous_hash = new_hash
         else:
-            print(f'WARNING: No match found for commit {details["commit_hash"]}')
+            if args.platform == 'gitlab':
+                url = f'https://gitlab.com/{args.username}/{args.repo}/-/tree/{details["commit_hash"]}'
+            else:
+                url = f'https://github.com/{args.username}/{args.repo}/tree/{details["commit_hash"]}'
+            print(f'WARNING: No match found for commit {details["commit_hash"]}. See: {url}')
         more_history = walk_repo()
     write_results(args, files)
 
