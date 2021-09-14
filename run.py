@@ -92,7 +92,7 @@ def build_download_link(platform: str, user: str, repo: str, hash: str, file: st
 
 
 def get_out_file_name(args):
-    filename = f'{HOME}/{args.platform}-{args.username}-{args.repo}'
+    filename = f'{HOME}/out/{args.platform}-{args.username}-{args.repo}'
     if args.name:
         filename += '-' + args.name
     return filename + '-results.json'
@@ -119,6 +119,7 @@ def main():
     files = list()
     more_history = True
     previous_hash = None
+    previous_epoch = None
     while more_history:
         details = get_commit_details()
         file = find_matching_file(args.patterns)
@@ -130,6 +131,8 @@ def main():
                     'url': build_download_link(args.platform, args.username, args.repo, details['commit_hash'], file),
                     'commitEpoch': details['commit_epoch']
                 }
+            elif details['commit_epoch'] == previous_epoch:
+                print(f'INFO: Commit has the same epoch, skipping')
             else:
                 print(f'INFO: New file hash: ${new_hash}')
                 files.append({
@@ -137,6 +140,7 @@ def main():
                     'commitEpoch': details['commit_epoch']
                 })
             previous_hash = new_hash
+            previous_epoch = details['commit_epoch']
         else:
             if args.platform == 'gitlab':
                 url = f'https://gitlab.com/{args.username}/{args.repo}/-/tree/{details["commit_hash"]}'
@@ -144,13 +148,13 @@ def main():
                 url = f'https://github.com/{args.username}/{args.repo}/tree/{details["commit_hash"]}'
             print(f'WARNING: No match found for commit {details["commit_hash"]}. See: {url}')
         more_history = walk_repo()
+    files_by_date = {}
+    for file in files:
+        files_by_date[file['commitEpoch']] = file
+    files = list(files_by_date.values())
+    files = sorted(files, key=lambda version: version['commitEpoch'])   # sort by commitEpoch
     write_results(args, files)
 
 
 if __name__ == "__main__":
     main()
-
-# https://gitlab.com/The_Quantum_Alpha/the-quantum-ad-list/-/blob/80eca2144059951e05d692511a189263efa01e86/For%20hosts%20file/The_Quantum_Ad-List.txt
-# https://gitlab.com/The_Quantum_Alpha/the-quantum-ad-list/-/raw/80eca2144059951e05d692511a189263efa01e86/For%20hosts%20file/The_Quantum_Ad-List.txt
-# https://gitlab.com/The_Quantum_Alpha/The_Quantum_Alpha/-/blob/80eca2144059951e05d692511a189263efa01e86/For%20hosts%20file/The_Quantum_Ad-List.txt"
-# https://gitlab.com/The_Quantum_Alpha/the-quantum-ad-list/-/raw/80eca2144059951e05d692511a189263efa01e86/For%20hosts%20file/The_Quantum_Ad-List.txt
