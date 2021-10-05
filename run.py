@@ -40,9 +40,11 @@ def clone_repo(platform: str, username: str, repo: str, branch: str):
     if not os.path.exists(CLONE_PATH):
         subprocess.Popen(['git', 'clone', github_repo, CLONE_PATH]).wait()
     subprocess.Popen(['git', 'fetch'], cwd=CLONE_PATH).wait()
+    subprocess.Popen(['git', 'reset', '--hard'], cwd=CLONE_PATH).wait()
+    subprocess.Popen(['git', 'clean', '-fd'], cwd=CLONE_PATH).wait()
     subprocess.Popen(['git', 'checkout', './'], cwd=CLONE_PATH).wait()
-    subprocess.Popen(['git', 'checkout', branch], cwd=CLONE_PATH).wait()
-    subprocess.Popen(['git', 'pull'], cwd=CLONE_PATH).wait()
+    subprocess.Popen(['git', 'checkout', '-f', branch], cwd=CLONE_PATH).wait()
+    subprocess.Popen(['git', 'pull', '--force'], cwd=CLONE_PATH).wait()
 
 
 def repo_path(platform: str, username: str, repo: str) -> str:

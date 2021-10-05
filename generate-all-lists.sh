@@ -5,8 +5,8 @@ docker-compose run --rm run --username lightswitch05 --repo hosts --name "d4440c
 docker-compose run --rm run --username lightswitch05 --repo hosts --name "cf95625f-2d92-43bb-a161-3f03982987af" "tracking-aggressive-extended.txt" "*tracking-aggressive.txt"
 docker-compose run --rm run --username lightswitch05 --repo hosts --name "522f16bb-9cd9-4e94-b2b7-5aae18a82b52" "amp-hosts-extended.txt" "*amp-hosts.txt"
 docker-compose run --rm run --username lightswitch05 --repo hosts --name "ce9c6ec5-13b5-4018-90e2-462b999362c2" "facebook-extended.txt" "*facebook.txt"
-docker-compose run --rm run --username lightswitch05 --repo hosts --name "afee319e-f434-4abf-96ae-f580493707ed" "hate-and-junk-extended"
-docker-compose run --rm run --username lightswitch05 --repo hosts --name "fa123cbc-1197-4447-af43-0f6e6fe12722" "dating-services-extended"
+docker-compose run --rm run --username lightswitch05 --repo hosts --name "afee319e-f434-4abf-96ae-f580493707ed" "hate-and-junk-extended.txt"
+docker-compose run --rm run --username lightswitch05 --repo hosts --name "fa123cbc-1197-4447-af43-0f6e6fe12722" "dating-services-extended.txt"
 
 docker-compose run --rm run --username StevenBlack --repo hosts --name "67701e59-0496-4332-9586-aeb4db1cd097" "hosts"
 
@@ -17,6 +17,9 @@ docker-compose run --rm migration --id 1467029f-0ace-4b3a-9a90-00f60475015b
 
 # OISD Light: 93b945d3-5005-4bd9-8faf-f2bb1a16831c
 docker-compose run --rm migration --id  93b945d3-5005-4bd9-8faf-f2bb1a16831c
+
+# OISD Extra: 8da342f1-3ed3-4154-a0c5-69a80840a44f
+docker-compose run --rm migration --id  8da342f1-3ed3-4154-a0c5-69a80840a44f
 
 docker-compose run --rm run --username llacb47 --repo mischosts --name "2f8d3438-750b-45d2-84b4-655202eb11f9" "tiktok-block" "tiktok-hosts"
 docker-compose run --rm run --username llacb47 --repo mischosts --name "91a41894-bfbc-4000-81be-178ca0691fdf" "blacklist"
@@ -52,6 +55,8 @@ docker-compose run --rm migration --id 8ebd22b6-81a7-4f6e-8032-6f7ad281b9b7
 docker-compose run --rm migration --id cb51c11f-0086-422f-a2ea-0313f910ec6e
 
 docker-compose run --rm run --username anudeepND --repo blacklist --name "1d28491c-6892-4615-974f-0f546da72474" "adservers.txt" "adserverhost.txt"
+
+docker-compose run --rm run --username anudeepND --repo blacklist --name "24a440bd-16ff-414a-b74e-45144ad754f4" "CoinMiner.txt"
 
 docker-compose run --rm run --username anudeepND --repo whitelist --name "28a8cefc-9b7c-4f71-bc1e-38a6242d5840" "domains/whitelist.txt" "whitelist.txt"
 
@@ -141,7 +146,7 @@ docker-compose run --rm run --username anudeepND --repo blacklist --name "6368a1
 
 docker-compose run --rm run --username StevenBlack --repo hosts --name "178a40e4-ad09-4be9-a605-4e2207a1de77" "data/StevenBlack/hosts"
 
-docker-compose run --rm run --username mitchellkrogza --repo Badd-Boyz-Hosts --name "178a40e4-ad09-4be9-a605-4e2207a1de77" "hosts"
+docker-compose run --rm run --username mitchellkrogza --repo Badd-Boyz-Hosts --name "df7d84f4-5a70-42eb-86a2-5e54b6af5a53" "hosts"
 
 docker-compose run --rm run --username tiuxo --repo hosts --name "9c74ae92-0fd4-4b33-9088-3bfe72ca8720" "ads"
 
@@ -291,6 +296,15 @@ docker-compose run --rm run --username DRSDavidSoft --repo additional-hosts --na
 
 docker-compose run --rm run --username autinerd --repo anti-axelspringer-hosts --name "24d51b02-fbcc-491e-bfb5-4f34b7d8057b" "axelspringer-hosts"
 
-docker-compose run --rm run --username hell-sh --repo Evil-Domains --name "924f982f-09fb-487b-a0fb-feaa6ff45570" "evil-domains.txt" "output/domains.txt"
+docker-compose run --rm run --username hell-sh --repo Evil-Domains --name "448e2b56-5151-431a-8ad8-8002fdeb1606" "evil-domains.txt" "output/domains.txt"
 
+docker-compose run --rm run --username bkrucarci --repo turk-adlist --name "a2adc136-11f6-4006-b2ca-338ca1b09140" "hosts" "hosts.txt"
 
+docker-compose run --rm run --username soteria-nou --repo domain-list --name "c4097a9f-53de-4886-951d-b610be1c516a" "ads.txt"
+docker-compose run --rm run --username soteria-nou --repo domain-list --name "22207bfd-f30a-4346-b010-7d06239dcbcc" "affiliate.txt"
+docker-compose run --rm run --username soteria-nou --repo domain-list --name "57aaa434-cfe5-42f9-bb38-f10e3d25be36" "analytics.txt"
+docker-compose run --rm run --username soteria-nou --repo domain-list --name "78ad8fd9-505f-432c-bae9-25e07ec9bed0" "enrichments.txt"
+docker-compose run --rm run --username soteria-nou --repo domain-list --name "72c47f9c-0994-4014-8976-e4dc0b582e55" "fake.txt"
+docker-compose run --rm run --username soteria-nou --repo domain-list --name "6e9f3552-5835-4c05-8f81-b5ee03e4717e" "widgets.txt"
+
+docker-compose run --rm run --username durablenapkin --repo scamblocklist --name "444a6eba-5083-4e58-8d29-30b52965ca34" "hosts.txt"
