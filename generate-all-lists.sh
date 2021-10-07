@@ -308,3 +308,7 @@ docker-compose run --rm run --username soteria-nou --repo domain-list --name "72
 docker-compose run --rm run --username soteria-nou --repo domain-list --name "6e9f3552-5835-4c05-8f81-b5ee03e4717e" "widgets.txt"
 
 docker-compose run --rm run --username durablenapkin --repo scamblocklist --name "444a6eba-5083-4e58-8d29-30b52965ca34" "hosts.txt"
+
+docker-compose run --rm run --username MetaMask --repo eth-phishing-detect --name "c20c14d9-04e6-488c-83f3-65455b100719" "src/hosts.txt"
+
+docker-compose run --rm run --username tg12 --repo pihole-phishtank-list --name "229a166a-7fb7-40e7-af26-91cdea004d96" "list/phish_domains.txt"
