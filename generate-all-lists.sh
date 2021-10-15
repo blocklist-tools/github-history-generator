@@ -312,3 +312,7 @@ docker-compose run --rm run --username durablenapkin --repo scamblocklist --name
 docker-compose run --rm run --username MetaMask --repo eth-phishing-detect --name "c20c14d9-04e6-488c-83f3-65455b100719" "src/hosts.txt"
 
 docker-compose run --rm run --username tg12 --repo pihole-phishtank-list --name "229a166a-7fb7-40e7-af26-91cdea004d96" "list/phish_domains.txt"
+
+docker-compose run --rm run --platform gitlab --username The_Quantum_Alpha --repo the-quantum-ad-list --name "d06c39c8-cfe2-43c7-b7a1-c32863474d26" "*/The_Quantum_Ad-List.txt" "The_Quantum_Ad-List.txt" "Ads-to-block-list-by-TQA.txt"
+
+docker-compose run --rm run --username oneoffdallas --repo dohservers --name "121b9eb6-bada-4d85-9cb4-226eb7d13a22" "list.txt"
